@@ -1,7 +1,10 @@
+# Развлекательный телеграмм бот нажимаешь на кнопки и он
+# выдает картинку по теме или мелодию или рандомно шутки
+
 import telebot, random
 from telebot import types
 with open('token.txt', 'r') as f:
-    s = f.readlines()
+    s = f.read().split('\n')
 token = s[0]
 bot = telebot.TeleBot(token)
 
