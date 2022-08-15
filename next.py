@@ -7,6 +7,7 @@ import confide
 
 bot = telebot.TeleBot(confide.token)
 # Ниже напиши свой ID группу в телеграмме
+GROUP_ID = ''
 
 
 def get_all_buttons(): #функция для создания из файла json всех кнопак
@@ -38,7 +39,13 @@ def get_keyboard(keyboard_type):
     return keyboard
 
 
-def generate_message(button): #функция для создания для создания сообщение после нажатия кнопки
+def generate_id(button):# функция для генерации id нужной группы
+    global GROUP_ID
+    GROUP_ID = confide.GROUP_ID[int(button)]
+    return GROUP_ID
+
+
+def generate_message(button): #функция для создания сообщение после нажатия кнопки
     msg = ""
     if 'link' in button and 'link_id' in button:
         msg += '<b> %s </b>\n' % button['name']
@@ -76,7 +83,7 @@ def send(message):
     else:
         to_send_message = '<b>%s</b>\n\n' % txt
         to_send_message += 'Этот вопрос выложен у нас на канале (ссылка на канал).\nC помощью @zadam_vopros_bot\nМы Вконтакте: https://vk.com/shugaring_forum\nПо рекламе: @alina_tech'
-        bot.send_message(confide.GROUP_ID, to_send_message, parse_mode='html')
+        bot.send_message(GROUP_ID, to_send_message, parse_mode='html')
 
 
 @bot.message_handler(content_types=['text'])# сохранения вопроса отправленого боту
@@ -91,7 +98,7 @@ def keyboard_answer(call):
     button = list(filter(lambda btn: call.data == btn['id'], get_all_buttons()))[0]
     if button['id'] == "2":
         keyboard = types.InlineKeyboardMarkup()
-        keyboard.add(types.InlineKeyboardButton("Заказать рекламу", url="https://t.me/LyudmilaProskurova"))
+        keyboard.add(types.InlineKeyboardButton("Заказать рекламу", url="https://t.me/alina_tech"))
         bot.send_message(
             chat_id=call.message.chat.id,
             text="Отлично просто нажми на кнопку",
@@ -119,11 +126,14 @@ def keyboard_answer(call):
         keyboard.add(types.KeyboardButton("/send"))
         bot.send_message(
             chat_id=call.message.chat.id,
-            text="Напишите, пожалуйста, свой вопрос одним сообщением.\nКак только вы отправите сообщение сюда,вопрос будет сформирован.",
+            text="Напишите, пожалуйста, свой вопрос одним сообщением.\nЕсли захотите сформулировать вопрос по другому, \
+            можете отправить новым сообщением до нажатия кнопки /send , \
+            после нажатия кнопки вопрос будет отправлен в чат и изменить его нельзя.",
             reply_markup=keyboard,
             parse_mode='html'
         )
     else:
+        generate_id(button['link_id'])
         bot.send_message(
             chat_id=call.message.chat.id,
             text=generate_message(button),
